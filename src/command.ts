@@ -34,6 +34,10 @@ const commands: ApplicationCommandData[] = [
         description: "ランダム再生を行います",
     },
     {
+        name: "resume",
+        description: "再生を再開します",
+    },
+    {
         name: "stop",
         description: "再生を停止します",
     },

@@ -4,6 +4,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const safeNumber = (value: any): number | null => {
     const i = Number(value);
     if (Number.isNaN(i)) {

@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
+import dotenv from "dotenv";
 import { __dirname } from "./lib.ts";
 import { Logger } from "./logger.ts";
+dotenv.config();
 
 const VOICEVOX_URL = process.env.VOICEVOX_URL ?? "http://localhost:50021";
 const basePath = path.resolve(__dirname, "../", "voice");

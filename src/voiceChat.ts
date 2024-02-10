@@ -1,12 +1,32 @@
 //Node.jsでしか動かない！https://github.com/oven-sh/bun/issues/1630
-import { VoiceConnection, createAudioPlayer, createAudioResource, joinVoiceChannel } from "@discordjs/voice";
+import {
+    AudioPlayer,
+    AudioPlayerStatus,
+    AudioResource,
+    NoSubscriberBehavior,
+    VoiceConnection,
+    createAudioPlayer,
+    createAudioResource,
+    joinVoiceChannel,
+} from "@discordjs/voice";
 import { Guild } from "discord.js";
+import { MusicPlayer } from "./musicPlayer.ts";
 
+enum PlayerStatus {
+    once = "once",
+    continuous = "continuous",
+    stop = "stop",
+}
 export class VoiceChat {
     private connection: VoiceConnection | null = null;
     readonly guild: Guild;
+    private player: AudioPlayer;
+    readonly musicPlayer: MusicPlayer;
+    private status: PlayerStatus = PlayerStatus.stop;
     constructor(guild: Guild) {
         this.guild = guild;
+        this.player = createAudioPlayer();
+        this.musicPlayer = new MusicPlayer();
     }
     async joinVoiceChannel(channelId: string) {
         if (this.connection && this.connection.joinConfig.channelId === channelId) {
@@ -16,6 +36,16 @@ export class VoiceChat {
             channelId: channelId,
             guildId: this.guild.id,
             adapterCreator: this.guild.voiceAdapterCreator,
+        });
+        this.connection.subscribe(this.player);
+        this.player.on("stateChange", (oldState, newState) => {
+            if (oldState.status === AudioPlayerStatus.Playing && newState.status === AudioPlayerStatus.Idle) {
+                if (this.status === PlayerStatus.continuous) {
+                    this.playAudio(this.musicPlayer.nextTrack());
+                } else if (this.status === PlayerStatus.once) {
+                    this.status = PlayerStatus.stop;
+                }
+            }
         });
     }
 
@@ -27,11 +57,46 @@ export class VoiceChat {
     getVoiceChannel() {
         return this.connection?.joinConfig.channelId;
     }
-
+    /**
+     * ボイスチャットで音声を再生する。再生中の音声がある場合は差し替える。
+     * @param filePath
+     */
     async playAudio(filePath: Parameters<typeof createAudioResource>[0]) {
         const resouces = createAudioResource(filePath);
-        const player = createAudioPlayer();
+        this.player?.play(resouces);
+    }
+    /**
+     * ボイスチャットで一時的に音声を再生する。再生中の音声がある場合は一時停止して再生、その後再開させる。
+     * @param filePath
+     */
+    async playVoice(filePath: Parameters<typeof createAudioResource>[0]) {
+        this.player.pause();
+        const resouces = createAudioResource(filePath);
+        const player = createAudioPlayer({});
         player.play(resouces);
         this.connection?.subscribe(player);
+        player.on("stateChange", (oldState, newState) => {
+            if (newState.status === AudioPlayerStatus.Idle) {
+                this.connection?.subscribe(this.player);
+                setTimeout(() => {
+                    this.player.unpause();
+                }, 500);
+            }
+        });
+    }
+
+    stopAudio() {
+        this.status = PlayerStatus.stop;
+        this.player.stop();
+    }
+
+    async playContinuous() {
+        this.status = PlayerStatus.continuous;
+        await this.playAudio(this.musicPlayer.getTrack());
+    }
+
+    async playOnce() {
+        this.status = PlayerStatus.once;
+        await this.playAudio(this.musicPlayer.getTrack());
     }
 }

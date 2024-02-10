@@ -1,8 +1,9 @@
 import fs from "fs";
 import path from "path";
 import { gzipSync } from "zlib";
+import dotenv from "dotenv";
 import { __dirname, formatDate, formatDateTime } from "./lib.ts";
-
+dotenv.config();
 const logDir = path.resolve(__dirname, "..", "logs");
 
 // ログファイルの圧縮
