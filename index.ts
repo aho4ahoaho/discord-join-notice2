@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Guild, VoiceState } from "discord.js";
+import { ActivityType, Client, GatewayIntentBits, Guild, VoiceState } from "discord.js";
 import dotenv from "dotenv";
 import { MusicPlayer } from "./src/musicPlayer.ts";
 import { VoiceChat } from "./src/voiceChat.ts";
@@ -13,6 +13,15 @@ if (!TOKEN) {
 //Discordクライアントの作成
 const client = new Client({
     intents: [GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.Guilds],
+    presence: {
+        activities: [
+            {
+                name: "/help",
+                state: "ユーザー名の読み上げを行います",
+                type: ActivityType.Watching,
+            },
+        ],
+    },
 });
 
 //音声合成と音声管理のインスタンスを作成
@@ -82,15 +91,19 @@ const getVoiceChat = (guild: Guild) => {
 
 client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
+    const ephemeralReply = (content = "", time = 20) => {
+        interaction.reply({ content, ephemeral: true });
+        setTimeout(() => {}, time * 1000);
+    };
     const guild = interaction.guild;
     if (!guild) {
-        interaction.reply("サーバー内で実行してください");
+        ephemeralReply("サーバー上で実行してください");
         return;
     }
     const guildId = guild.id;
     const channelId = interaction.member && "voice" in interaction.member && interaction.member.voice.channel?.id;
     if (!channelId) {
-        interaction.reply("ボイスチャンネルに参加してください");
+        ephemeralReply("ボイスチャンネルに参加してください");
         return;
     }
 
@@ -98,7 +111,7 @@ client.on("interactionCreate", async (interaction) => {
         case "join": {
             const voiceChat = getVoiceChat(guild);
             voiceChat.joinVoiceChannel(channelId);
-            interaction.reply("ボイスチャンネルに参加しました");
+            ephemeralReply("ボイスチャンネルに参加しました");
             break;
         }
         case "leave": {
@@ -107,7 +120,7 @@ client.on("interactionCreate", async (interaction) => {
                 voiceChat.leaveVoiceChannel();
                 voiceChats.delete(guildId);
             }
-            interaction.reply("ボイスチャンネルから退出しました");
+            ephemeralReply("ボイスチャンネルから退出しました");
             break;
         }
         case "pronunciation": {
@@ -117,17 +130,17 @@ client.on("interactionCreate", async (interaction) => {
                 | string
                 | null;
             if (!userName || pronunciation === "") {
-                interaction.reply("名前を指定してください");
+                ephemeralReply("名前と読みを指定してください");
                 return;
             }
             const voicePath = await voiceHandler.saveVoice(userName, pronunciation);
-            interaction.reply(`名前の読みを${pronunciation}に変更しました`);
+            ephemeralReply(`${userName}の読みを${pronunciation}に変更しました`);
             const voiceChat = voiceChats.get(guildId);
             voiceChat?.playAudio(voicePath);
             break;
         }
         case "random": {
-            interaction.reply("ランダム再生を行います");
+            ephemeralReply("ランダム再生を行います");
             const voiceChat = getVoiceChat(guild);
             voiceChat.joinVoiceChannel(channelId);
             voiceChat.musicPlayer.shuffle();
@@ -137,57 +150,64 @@ client.on("interactionCreate", async (interaction) => {
         case "resume": {
             const voiceChat = voiceChats.get(guildId);
             voiceChat?.playContinuous();
-            interaction.reply("再生を再開しました");
+            ephemeralReply("再生を再開しました");
             break;
         }
         case "stop": {
             const voiceChat = voiceChats.get(guildId);
             voiceChat?.stopAudio();
-            interaction.reply("再生を停止しました");
+            ephemeralReply("再生を停止しました");
             break;
         }
         case "next": {
             const voiceChat = voiceChats.get(guildId);
             voiceChat?.playAudio(voiceChat.musicPlayer.nextTrack());
-            interaction.reply("次の曲を再生します");
+            ephemeralReply("次の曲を再生します");
             break;
         }
         case "prev": {
             const voiceChat = voiceChats.get(guildId);
             voiceChat?.playAudio(voiceChat.musicPlayer.prevTrack());
-            interaction.reply("前の曲を再生します");
+            ephemeralReply("前の曲を再生します");
             break;
         }
         case "list": {
-            const voiceChat = voiceChats.get(guildId);
-            const playlist = voiceChat?.musicPlayer.getPlaylist() ?? MusicPlayer.getTrackList();
+            const playlist = MusicPlayer.getTrackList();
             const content = playlist
                 ?.map((title) => title.split(".")[0])
                 .map((v, i) => `${i + 1}. ${v}`)
                 .join("\n");
-            interaction.reply(content ?? "再生リストがありません");
+            ephemeralReply(content, 60);
+            break;
+        }
+        case "queue": {
+            const voiceChat = voiceChats.get(guildId);
+            const playlist = voiceChat?.musicPlayer.getPlaylist();
+            const index = voiceChat?.musicPlayer.getIndex() ?? 0;
+
+            const content = playlist
+                ?.filter((_, i) => i >= index && i < index + 5)
+                .map((title, i) => `${i + 1}. ${title.split(".")[0]}`)
+                .join("\n");
+            ephemeralReply(content, 60);
             break;
         }
         case "play": {
-            if (!channelId) {
-                interaction.reply("ボイスチャンネルに参加してください");
-                return;
-            }
             const trackName = interaction.options.getString("曲名");
             if (!trackName) {
-                interaction.reply("曲名を指定してください");
+                ephemeralReply("曲名を指定してください");
                 return;
             }
             const voiceChat = getVoiceChat(guild);
             voiceChat?.joinVoiceChannel(channelId);
             const fileName = voiceChat.musicPlayer.getPlaylist().find((title) => title.startsWith(trackName));
             if (!fileName) {
-                interaction.reply("曲が見つかりません");
+                ephemeralReply("曲が見つかりませんでした");
                 return;
             }
             voiceChat?.playAudio(MusicPlayer.getTrackPath(fileName));
             const title = fileName.split(".")[0];
-            interaction.reply(`${title}を再生します`);
+            ephemeralReply(`${title}を再生します`);
             break;
         }
     }

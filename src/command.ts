@@ -65,6 +65,14 @@ const commands: ApplicationCommandData[] = [
             },
         ],
     },
+    {
+        name: "queue",
+        description: "再生キューを表示します",
+    },
+    {
+        name: "help",
+        description: "コマンド一覧を表示します",
+    },
 ];
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);

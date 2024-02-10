@@ -47,9 +47,17 @@ export class MusicPlayer {
     getPlaylist() {
         return this.playlist;
     }
-
+    /**
+     * プレイリストをシャッフルする
+     */
     shuffle() {
         this.playlist = arrayShuffle(this.playlist);
+    }
+    /**
+     * 再生中の曲番号を取得する
+     */
+    getIndex() {
+        return this.index;
     }
 
     static getTrackPath(trackName: string) {

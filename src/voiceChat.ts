@@ -17,12 +17,20 @@ enum PlayerStatus {
     continuous = "continuous",
     stop = "stop",
 }
+type VoiceChatEvent = "join" | "leave" | "play" | "stop";
 export class VoiceChat {
     private connection: VoiceConnection | null = null;
     readonly guild: Guild;
     private player: AudioPlayer;
     readonly musicPlayer: MusicPlayer;
     private status: PlayerStatus = PlayerStatus.stop;
+    private eventFunc: Partial<
+        {
+            play: (title: string) => void;
+        } & {
+            [key in VoiceChatEvent]: () => void;
+        }
+    > = {};
     constructor(guild: Guild) {
         this.guild = guild;
         this.player = createAudioPlayer();
@@ -43,15 +51,17 @@ export class VoiceChat {
                 if (this.status === PlayerStatus.continuous) {
                     this.playAudio(this.musicPlayer.nextTrack());
                 } else if (this.status === PlayerStatus.once) {
-                    this.status = PlayerStatus.stop;
+                    this.stopAudio();
                 }
             }
         });
+        this.eventFunc.join?.();
     }
 
     async leaveVoiceChannel() {
         this.connection?.destroy();
         this.connection = null;
+        this.eventFunc.leave?.();
     }
 
     getVoiceChannel() {
@@ -64,6 +74,7 @@ export class VoiceChat {
     async playAudio(filePath: Parameters<typeof createAudioResource>[0]) {
         const resouces = createAudioResource(filePath);
         this.player?.play(resouces);
+        this.eventFunc.play?.(String(filePath));
     }
     /**
      * ボイスチャットで一時的に音声を再生する。再生中の音声がある場合は一時停止して再生、その後再開させる。
@@ -88,6 +99,11 @@ export class VoiceChat {
     stopAudio() {
         this.status = PlayerStatus.stop;
         this.player.stop();
+        this.eventFunc.stop?.();
+    }
+
+    on(event: VoiceChatEvent, func: () => void) {
+        this.eventFunc[event] = func;
     }
 
     async playContinuous() {
