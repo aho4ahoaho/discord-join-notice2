@@ -14,7 +14,11 @@
                 "all": false
             },
             "complexity": {
-                "noForEach": "off"
+                "noForEach": "off",
+                "noBannedTypes": "off"
+            },
+            "suspicious": {
+                "noExplicitAny": "off"
             }
         }
     },

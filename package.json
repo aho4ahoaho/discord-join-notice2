@@ -2,26 +2,34 @@
   "name": "discord-join-notice",
   "module": "index.ts",
   "type": "module",
+  "license": "UNLICENSED",
   "scripts": {
-    "start": "bun index.ts",
-    "dev": "bun --watch index.ts",
+    "start": "node --loader ts-node/esm index.ts",
+    "dev": "nodemon --exec \"node --loader ts-node/esm\" index.ts",
     "lint": "biome check .",
     "fix": "biome check --apply-unsafe .",
     "format": "biome format --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "regcmd": "bun src/command.ts",
+    "build": "bun build index.ts --target node --outdir ./dist"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
+    "bun-types": "latest",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
     "discord.js": "^14.14.1",
+    "dotenv": "^16.4.1",
+    "ffmpeg-static": "^5.2.0",
     "husky": "^9.0.10",
     "lint-staged": "^15.2.2",
+    "nodemon": "^3.0.3",
+    "sodium": "^3.0.2",
     "utf-8-validate": "^6.0.3"
   },
   "lint-staged": {
