@@ -52,27 +52,36 @@ export class VoiceGenerator {
         })
             .then((res) => res.json())
             .catch((e) => Logger.error(e));
-        return data;
+        if (!data) {
+            throw new Error("Failed to generate query");
+        }
+        return data ?? "";
     }
 
     /**
      * @param query generateQueryで生成したクエリを与える
      * @returns 音声バイナリ
      */
-    async generateVoice(query: Object): Promise<ArrayBuffer> {
+    async generateVoice(query: Object & VoiceSetting): Promise<ArrayBuffer> {
         const url = new URL(`${VOICEVOX_URL}/synthesis`);
         url.searchParams.append("speaker", this.speakerId.toString());
-        const appliedQuery = {
-            ...query,
-            ...this.voiceSetting,
-        };
+        const appliedQuery = { ...query, ...this.voiceSetting };
         const data = await fetch(url.href, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
             body: JSON.stringify(appliedQuery),
         })
             .then((res) => res.arrayBuffer())
             .catch((e) => Logger.error(e));
+
         if (data instanceof ArrayBuffer) {
+            if (data.byteLength < 100) {
+                const text = new TextDecoder().decode(data);
+                console.error(text);
+                throw new Error("Failed to generate voice");
+            }
             return data;
         }
         throw new Error("Failed to generate voice");

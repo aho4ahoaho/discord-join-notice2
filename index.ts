@@ -16,8 +16,8 @@ const client = new Client({
 
 //音声合成と音声管理のインスタンスを作成
 const voiceGenerator = new VoiceGenerator(2, {
-    speedScale: 1.25,
-    volumeScale: 1.5,
+    speedScale: 1.1,
+    volumeScale: 1.3,
 });
 const voiceHandler = new VoiceHandler(voiceGenerator, {
     suffix: "さんが入室しました。",
@@ -55,7 +55,6 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
         voiceChat = new VoiceChat(newState.guild);
         voiceChats.set(guildId, voiceChat);
     }
-
     //喋りだせるならば音声を再生
     if (onConectState(oldState, newState)) {
         //ボイスチャンネルに参加
@@ -98,6 +97,7 @@ client.on("interactionCreate", async (interaction) => {
                 return voiceChat;
             })();
             voiceChat.joinVoiceChannel(channelId);
+            interaction.reply("ボイスチャンネルに参加しました");
             break;
         }
         case "leave": {
@@ -106,6 +106,7 @@ client.on("interactionCreate", async (interaction) => {
                 voiceChat.leaveVoiceChannel();
                 voiceChats.delete(guildId);
             }
+            interaction.reply("ボイスチャンネルから退出しました");
             break;
         }
         case "pronunciation": {
