@@ -49,12 +49,18 @@ const onConectState = (oldState: VoiceState, newState: VoiceState) =>
     (!oldState.channel && !!newState.channel); //ボイスチャットに参加
 const voiceChats = new Map<string, VoiceChat>();
 client.on("voiceStateUpdate", async (oldState, newState) => {
+    //ボイスチャットが空になったら退出
+    if ((newState.channel?.members.size ?? 0) <= 1) {
+        const voiceChat = voiceChats.get(newState.guild.id);
+        if (!voiceChat) return;
+        voiceChat.leaveVoiceChannel();
+        voiceChats.delete(newState.guild.id);
+    }
     //自分の状態変更は無視
     if (newState.member?.id === client.user?.id) {
         return;
     }
     //接続先を特定する
-    const guildId = newState.guild.id;
     const channelId = newState.member?.voice.channel?.id;
     if (!channelId || !newState.member) {
         return;
@@ -70,12 +76,6 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
         const voicePath = await voiceHandler.getVoice(newState.member.displayName);
         //音声ファイルを再生
         voiceChat.playVoice(voicePath);
-    }
-
-    //ボイスチャットが空になったら退出
-    if ((newState.channel?.members.size ?? 0) <= 1) {
-        voiceChat.leaveVoiceChannel();
-        voiceChats.delete(guildId);
     }
 });
 
@@ -220,3 +220,8 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(TOKEN);
+
+process.on("SIGINT", () => {
+    client.destroy();
+    process.exit(0);
+});
