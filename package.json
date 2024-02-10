@@ -2,10 +2,35 @@
   "name": "discord-join-notice",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "bun index.ts",
+    "dev": "bun --watch index.ts",
+    "lint": "biome check .",
+    "fix": "biome check --apply-unsafe .",
+    "format": "biome format --write .",
+    "prepare": "husky install"
+  },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "bun-types": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@discordjs/voice": "^0.16.1",
+    "discord.js": "^14.14.1",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2",
+    "utf-8-validate": "^6.0.3"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "biome check --apply-unsafe",
+      "biome format --write"
+    ],
+    "*.json": [
+      "biome format --write"
+    ]
   }
 }
