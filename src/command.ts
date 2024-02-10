@@ -29,6 +29,38 @@ const commands: ApplicationCommandData[] = [
             },
         ],
     },
+    {
+        name: "random",
+        description: "ランダム再生を行います",
+    },
+    {
+        name: "stop",
+        description: "再生を停止します",
+    },
+    {
+        name: "next",
+        description: "次の曲を再生します",
+    },
+    {
+        name: "prev",
+        description: "前の曲を再生します",
+    },
+    {
+        name: "list",
+        description: "再生リストを表示します",
+    },
+    {
+        name: "play",
+        description: "指定の曲を再生します",
+        options: [
+            {
+                type: ApplicationCommandOptionType.String,
+                name: "曲名",
+                description: "再生する曲を指定します",
+                required: true,
+            },
+        ],
+    },
 ];
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
