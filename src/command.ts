@@ -1,4 +1,4 @@
-import { REST, Routes } from "discord.js";
+import { ApplicationCommandData, ApplicationCommandOptionType, REST, Routes } from "discord.js";
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
@@ -8,10 +8,26 @@ if (!TOKEN || !CLIENT_ID) {
     process.exit(1);
 }
 
-const commands = [
+const commands: ApplicationCommandData[] = [
     {
-        name: "ping",
-        description: "Replies with Pong!",
+        name: "join",
+        description: "ボイスチャンネルに参加します",
+    },
+    {
+        name: "leave",
+        description: "ボイスチャンネルから退出します",
+    },
+    {
+        name: "pronunciation",
+        description: "名前の読みを変更します",
+        options: [
+            {
+                type: ApplicationCommandOptionType.String,
+                name: "読み",
+                description: "名前の読みを指定します",
+                required: true,
+            },
+        ],
     },
 ];
 

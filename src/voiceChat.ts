@@ -4,13 +4,12 @@ import { Guild } from "discord.js";
 
 export class VoiceChat {
     private connection: VoiceConnection | null = null;
-    private connectionChannelId: string | null = null;
     readonly guild: Guild;
     constructor(guild: Guild) {
         this.guild = guild;
     }
     async joinVoiceChannel(channelId: string) {
-        if (this.connection && this.connectionChannelId === channelId) {
+        if (this.connection && this.connection.joinConfig.channelId === channelId) {
             return;
         }
         this.connection = joinVoiceChannel({
@@ -23,7 +22,10 @@ export class VoiceChat {
     async leaveVoiceChannel() {
         this.connection?.destroy();
         this.connection = null;
-        this.connectionChannelId = null;
+    }
+
+    getVoiceChannel() {
+        return this.connection?.joinConfig.channelId;
     }
 
     async playAudio(filePath: Parameters<typeof createAudioResource>[0]) {

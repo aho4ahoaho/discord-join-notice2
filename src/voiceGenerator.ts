@@ -60,7 +60,6 @@ export class VoiceGenerator {
      * @returns 音声バイナリ
      */
     async generateVoice(query: Object): Promise<ArrayBuffer> {
-        console.log("query", query);
         const url = new URL(`${VOICEVOX_URL}/synthesis`);
         url.searchParams.append("speaker", this.speakerId.toString());
         const appliedQuery = {
@@ -106,6 +105,14 @@ export class VoiceHandler {
     constructor(voiceGenerator: VoiceGenerator, options?: VoiceOption) {
         fs.mkdirSync(basePath, { recursive: true });
         this.voiceGenerator = voiceGenerator;
+        if (options) {
+            if (options.prefix) {
+                this.prefix = options.prefix;
+            }
+            if (options.suffix) {
+                this.suffix = options.suffix;
+            }
+        }
     }
     async getVoice(userName: string) {
         const fileName = `${userName}.wav`;
@@ -113,8 +120,12 @@ export class VoiceHandler {
         if (fs.existsSync(filePath)) {
             return filePath;
         }
-        const text = `${this.prefix}${userName}${this.suffix}`;
-        const query = await this.voiceGenerator.generateQuery(text);
+        return await this.saveVoice(userName, userName);
+    }
+    async saveVoice(userName: string, text: string) {
+        const fileName = `${userName}.wav`;
+        const filePath = path.resolve(basePath, fileName);
+        const query = await this.voiceGenerator.generateQuery(`${this.prefix}${text}${this.suffix}`);
         const voice = await this.voiceGenerator.generateVoice(query);
         fs.writeFileSync(filePath, Buffer.from(voice));
         return filePath;
