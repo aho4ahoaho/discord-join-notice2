@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -36,3 +37,12 @@ export const formatDateTime = (date: Date = new Date(), padding?: boolean) => {
 export const formatDate = (date: Date = new Date()) => {
     return `${date.getFullYear()}-${zeroPadding(date.getMonth() + 1, 2)}-${zeroPadding(date.getDate(), 2)}`;
 };
+
+export const helpText = (() => {
+    const context = fs
+        .readFileSync(path.join(__dirname, "..", "src", "help.md"), "utf-8")
+        .split("\n")
+        .filter((v) => v !== "")
+        .join("\n");
+    return context;
+})();

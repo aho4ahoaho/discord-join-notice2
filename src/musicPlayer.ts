@@ -16,6 +16,7 @@ export class MusicPlayer {
         this.playlist = this.trackFiles;
     }
     /**
+     * 次の曲へ進ませる
      * @returns 次の楽曲のパス
      */
     nextTrack() {
@@ -26,6 +27,7 @@ export class MusicPlayer {
         return this.getTrack();
     }
     /**
+     * 前の曲へ戻す
      * @returns 前の楽曲のパス
      */
     prevTrack() {

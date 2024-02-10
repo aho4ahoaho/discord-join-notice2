@@ -1,5 +1,6 @@
 import { ActivityType, Client, GatewayIntentBits, Guild, VoiceState } from "discord.js";
 import dotenv from "dotenv";
+import { helpText } from "./src/lib.ts";
 import { MusicPlayer } from "./src/musicPlayer.ts";
 import { VoiceChat } from "./src/voiceChat.ts";
 import { VoiceGenerator, VoiceHandler } from "./src/voiceGenerator.ts";
@@ -93,7 +94,9 @@ client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
     const ephemeralReply = (content = "", time = 20) => {
         interaction.reply({ content, ephemeral: true });
-        setTimeout(() => {}, time * 1000);
+        setTimeout(() => {
+            interaction.deleteReply();
+        }, time * 1000);
     };
     const guild = interaction.guild;
     if (!guild) {
@@ -209,6 +212,9 @@ client.on("interactionCreate", async (interaction) => {
             const title = fileName.split(".")[0];
             ephemeralReply(`${title}を再生します`);
             break;
+        }
+        case "help": {
+            ephemeralReply(helpText, 60);
         }
     }
 });
