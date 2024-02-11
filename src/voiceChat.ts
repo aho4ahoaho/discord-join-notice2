@@ -61,6 +61,7 @@ export class VoiceChat {
     async leaveVoiceChannel() {
         this.connection?.destroy();
         this.connection = null;
+        this.player.stop();
         this.eventFunc.leave?.();
     }
 
