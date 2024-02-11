@@ -26,6 +26,7 @@ bun start
 |   VOICEVOX_URL    | 音声合成に使用する VOICEVOX_CORE の URL                      |
 |  OPENAI_API_KEY   | GPT 利用時の API キー                                        |
 |   OPENAI_ORG_ID   | GPT 利用時の組織 ID                                          |
+|  GEMINI_API_KEY   | GeminiPro 利用時の API キー                                  |
 
 ## bot の操作
 

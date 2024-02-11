@@ -3,6 +3,7 @@ import path from "path";
 import dotenv from "dotenv";
 import { __dirname } from "./lib.ts";
 import { Logger } from "./logger.ts";
+import { textCorrect } from "./textCorrect.ts";
 dotenv.config();
 
 const VOICEVOX_URL = process.env.VOICEVOX_URL ?? "http://localhost:50021";
@@ -131,7 +132,8 @@ export class VoiceHandler {
         if (fs.existsSync(filePath)) {
             return filePath;
         }
-        return await this.saveVoice(userName, userName);
+        const namePronunciation = await textCorrect(userName);
+        return await this.saveVoice(userName, namePronunciation);
     }
     async saveVoice(userName: string, text: string) {
         const fileName = `${userName}.wav`;
