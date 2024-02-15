@@ -11,7 +11,7 @@
     "format": "biome format --write .",
     "prepare": "husky install",
     "regcmd": "bun src/command.ts",
-    "build": "bun build index.ts --target node --outdir ./dist --minify"
+    "build": "bun build index.ts --target node --outdir ./dist"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
