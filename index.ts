@@ -49,17 +49,16 @@ const onConectState = (oldState: VoiceState, newState: VoiceState) =>
     (!oldState.channel && !!newState.channel); //ボイスチャットに参加
 const voiceChats = new Map<string, VoiceChat>();
 client.on("voiceStateUpdate", async (oldState, newState) => {
-    //一人のボイスチャットには接続しない
-    if ((newState.channel?.members.size ?? 0) <= 1) {
-        voiceChats.delete(newState.guild.id);
-    }
     //ボイスチャットから自分以外が退出した場合は切断
     if (oldState.channel?.members.size === 1 && oldState.channel?.members.has(client.user?.id ?? "")) {
         const voiceChat = voiceChats.get(oldState.guild.id);
         voiceChat?.leaveVoiceChannel();
         voiceChats.delete(oldState.guild.id);
     }
-
+    //一人のボイスチャットには接続しない
+    if ((newState.channel?.members.size ?? 0) <= 1) {
+        voiceChats.delete(newState.guild.id);
+    }
     //自分の状態変更は無視
     if (newState.member?.id === client.user?.id) {
         return;
