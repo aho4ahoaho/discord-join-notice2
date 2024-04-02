@@ -12,16 +12,16 @@ enum Model {
     None = "none",
 }
 
+let model: Model = Model.None;
 // Geminiの方が安いのでGeminiを優先する
-let model: Model = GEMINI_API_KEY ? Model.Gemini : Model.GPT;
-
-if (model === Model.GPT && !(OPENAI_API_KEY && OPENAI_ORG_ID)) {
-    Logger.error("GPT environment variables not set");
-    model = Model.None;
-}
-if (model === Model.Gemini && !GEMINI_API_KEY) {
-    Logger.error("Gemini environment variables not set");
-    model = Model.None;
+if (GEMINI_API_KEY) {
+    Logger.log("Using Gemini API");
+    model = Model.Gemini;
+} else if (OPENAI_API_KEY && OPENAI_ORG_ID) {
+    Logger.log("Using OpenAI API");
+    model = Model.GPT;
+} else {
+    Logger.log("No API key found");
 }
 
 const NoneTextCorrect = async (text: string) => {
