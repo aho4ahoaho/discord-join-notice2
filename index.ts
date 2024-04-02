@@ -1,6 +1,7 @@
 import { ActivityType, Client, GatewayIntentBits, Guild, VoiceState } from "discord.js";
 import dotenv from "dotenv";
 import { helpText } from "./src/lib.ts";
+import { Logger } from "./src/logger.ts";
 import { MusicPlayer } from "./src/musicPlayer.ts";
 import { VoiceChat } from "./src/voiceChat.ts";
 import { VoiceGenerator, VoiceHandler } from "./src/voiceGenerator.ts";
@@ -49,15 +50,18 @@ const onConectState = (oldState: VoiceState, newState: VoiceState) =>
     (!oldState.channel && !!newState.channel); //ボイスチャットに参加
 const voiceChats = new Map<string, VoiceChat>();
 client.on("voiceStateUpdate", async (oldState, newState) => {
-    //ボイスチャットから自分以外が退出した場合は切断
-    if (oldState.channel?.members.size === 1 && oldState.channel?.members.has(client.user?.id ?? "")) {
+    //自分以外が全員ボイスチャットから退出した場合は切断
+    const otherUsersExitedVoiceChat =
+        oldState.channel?.members.size === 2 &&
+        newState.channel?.members.has(client.user?.id ?? "") &&
+        newState.channel?.members.size === 1;
+    //一人のボイスチャットには接続しない
+    const isSoloInVoiceChat = oldState.channel?.members.size === 1;
+    if (otherUsersExitedVoiceChat || isSoloInVoiceChat) {
         const voiceChat = voiceChats.get(oldState.guild.id);
         voiceChat?.leaveVoiceChannel();
         voiceChats.delete(oldState.guild.id);
-    }
-    //一人のボイスチャットには接続しない
-    if ((newState.channel?.members.size ?? 0) <= 1) {
-        voiceChats.delete(newState.guild.id);
+        return;
     }
     //自分の状態変更は無視
     if (newState.member?.id === client.user?.id) {
@@ -220,6 +224,10 @@ client.on("interactionCreate", async (interaction) => {
             ephemeralReply(helpText, 60);
         }
     }
+});
+
+client.on("error", (error) => {
+    Logger.error(error);
 });
 
 client.login(TOKEN);
