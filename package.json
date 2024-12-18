@@ -1,46 +1,41 @@
 {
-  "name": "discord-join-notice",
-  "module": "index.ts",
-  "type": "module",
-  "license": "Apache-2.0",
-  "scripts": {
-    "start": "node --loader ts-node/esm index.ts",
-    "dev": "nodemon --exec \"node --loader ts-node/esm\" index.ts",
-    "lint": "biome check .",
-    "fix": "biome check --apply-unsafe .",
-    "format": "biome format --write .",
-    "prepare": "husky install",
-    "regcmd": "bun src/command.ts",
-    "build": "bun build index.ts --target node --outdir ./dist"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.5.3",
-    "bun-types": "latest",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "@discordjs/opus": "^0.9.0",
-    "@discordjs/voice": "^0.16.1",
-    "@google/generative-ai": "^0.2.0",
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.4.1",
-    "ffmpeg-static": "^5.2.0",
-    "husky": "^9.0.10",
-    "lint-staged": "^15.2.2",
-    "nodemon": "^3.0.3",
-    "openai": "^4.27.0",
-    "sodium": "^3.0.2",
-    "utf-8-validate": "^6.0.3"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "biome check --apply-unsafe",
-      "biome format --write"
-    ],
-    "*.json": [
-      "biome format --write"
-    ]
-  }
+    "name": "discord-join-notice",
+    "module": "index.ts",
+    "type": "module",
+    "license": "Apache-2.0",
+    "scripts": {
+        "start": "node --loader ts-node/esm index.ts",
+        "dev": "nodemon --exec \"node --loader ts-node/esm\" index.ts",
+        "lint": "biome check .",
+        "fix": "biome check --apply-unsafe .",
+        "format": "biome format --write .",
+        "prepare": "husky",
+        "regcmd": "bun src/command.ts",
+        "build": "bun build index.ts --target node --outdir ./dist"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.9.4",
+        "bun-types": "^1.1.40",
+        "ts-node": "^10.9.2",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.7.2"
+    },
+    "dependencies": {
+        "@discordjs/opus": "^0.9.0",
+        "@discordjs/voice": "^0.18.0",
+        "@google/generative-ai": "^0.21.0",
+        "discord.js": "^14.16.3",
+        "dotenv": "^16.4.7",
+        "ffmpeg-static": "^5.2.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.2.11",
+        "nodemon": "^3.1.9",
+        "openai": "^4.77.0",
+        "sodium": "^3.0.2",
+        "utf-8-validate": "^6.0.5"
+    },
+    "lint-staged": {
+        "*.{js,ts}": ["biome check --apply-unsafe", "biome format --write"],
+        "*.json": ["biome format --write"]
+    }
 }
