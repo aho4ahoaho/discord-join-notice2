@@ -36,7 +36,7 @@ const textCorrectForGemini = () => {
         return NoneTextCorrect;
     }
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     return async (text: string) => {
         const result = await model.generateContent(`${prompt}\n${text}`);
         const response = await result.response.text();
@@ -50,7 +50,7 @@ const textCorrectForGPT4 = () => {
     });
     return async (text: string) => {
         const response = await openai.chat.completions.create({
-            model: "gpt-4-turbo-preview",
+            model: "chatgpt-4o-latest",
             messages: [
                 {
                     role: "system",
